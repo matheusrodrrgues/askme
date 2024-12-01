@@ -14,7 +14,6 @@
 # Versão do Python: 3.12.7 em 64-bit
 # ******************************************************************************************/
 
-# Importamos bibliotecas que serão usadas
 import json  # Para salvar e carregar dados de arquivos
 import random  # Para embaralhar perguntas
 import time  # Para medir o tempo durante o jogo
@@ -22,14 +21,14 @@ import time  # Para medir o tempo durante o jogo
 # Função para carregar perguntas e o Hall da Fama
 def carregar_dados():
     try:
-        with open("meuquiz.json", "r") as arquivo:
+        with open("meuquiz.json", "r", encoding='utf-8') as arquivo:
             perguntas = json.load(arquivo)
     except FileNotFoundError:
         print("Arquivo de perguntas não encontrado! Usando lista vazia.")
         perguntas = []
 
     try:
-        with open("hall.json", "r") as arquivo:
+        with open("hall.json", "r", encoding='utf-8') as arquivo:
             hall = json.load(arquivo)
     except FileNotFoundError:
         print("Arquivo de Hall da Fama não encontrado! Criando um novo.")
@@ -39,8 +38,8 @@ def carregar_dados():
 
 # Função para salvar o Hall da Fama
 def salvar_hall(hall):
-    with open("hall.json", "w") as arquivo:
-        json.dump(hall, arquivo, indent=4)
+    with open("hall.json", "a", encoding='utf-8') as arquivo:
+        json.dump(hall, arquivo, indent=4, ensure_ascii=False)
 
 # Função para mostrar o Hall da Fama
 def mostrar_hall(hall):
@@ -52,7 +51,7 @@ def mostrar_hall(hall):
 
 # Função para fazer perguntas ao jogador
 def fazer_pergunta(pergunta, ajudas):
-    print(f"\nCategoria: {pergunta['category']}")
+    print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")
     print(pergunta['questionText'])
     
     # Mostrar opções de resposta
@@ -70,25 +69,33 @@ def fazer_pergunta(pergunta, ajudas):
     while True:
         escolha = input("\nEscolha sua ação (1-4): ")
         if escolha == "1" and ajudas['dicas'] > 0:
-            print("Dica:", pergunta["hint"][0])
+            print("Dica:", pergunta["hint"])
             ajudas['dicas'] -= 1
         elif escolha == "2" and ajudas['pulos'] > 0:
             print("Você pulou a questão!")
             ajudas['pulos'] -= 1
             return None
         elif escolha == "3" and ajudas['eliminar'] > 0:
-            erradas = [op for op in opcoes if op != pergunta["answer"]]
+            erradas = [op for op in opcoes if f"option{opcoes.index(op)+1}" != pergunta["answer"]]
             removidas = random.sample(erradas, len(erradas) - 2)
             print("Opções erradas eliminadas:", ", ".join(removidas))
             ajudas['eliminar'] -= 1
         elif escolha == "4":
             resposta = input("Digite o número da sua resposta: ")
-            if opcoes[int(resposta) - 1] == pergunta["answer"]:
-                print("Resposta correta!")
-                return True
-            else:
-                print("Resposta errada!")
-                return False
+            try:
+                resposta_int = int(resposta)
+                if resposta_int in range(1, len(opcoes) + 1):
+                    if f"option{resposta_int}" == pergunta["answer"]:
+                        print("Resposta correta!")
+                        return True
+                    else:
+                        print(f"Resposta errada! A correta era: {pergunta[pergunta['answer']]}")
+                        print(f"Explicação: {pergunta['explanation']}")
+                        return False
+                else:
+                    print("Número fora do intervalo válido!")
+            except ValueError:
+                print("Entrada inválida! Digite um número.")
         else:
             print("Escolha inválida ou ajuda indisponível.")
 
@@ -111,7 +118,7 @@ def jogar(perguntas, modo, ajudas):
         if resultado is None:
             continue
         elif resultado:
-            pontos += pergunta["value"]
+            pontos += int(pergunta["value"])
         else:
             if modo == "sem_erros":
                 print("Você errou! Fim do jogo.")
