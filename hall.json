@@ -1,11 +1,13 @@
-
 {
-    "fixo": [],
-    "tempo": [],
+    "fixo": [
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40}
+    ],
+    "tempo": [
+        {"nome": "Carlos", "pontos": 70}
+    ],
     "sem_erros": [
-        {
-            "nome": "Matheus",
-            "pontos": 0
-        }
+        {"nome": "João", "pontos": 100},
+        {"nome": "Maria", "pontos": 90}
     ]
 }
