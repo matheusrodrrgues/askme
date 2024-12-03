@@ -130,6 +130,13 @@ def fazer_pergunta(pergunta, ajudas):
         else:
             print("Escolha inválida ou ajuda indisponível.")
 
+def recuperar_ajuda(ajudas, respostas_certas):
+
+    if respostas_certas > 0 and respostas_certas % 6 == 0:  # Verifica se é múltiplo de 6
+        ajudas_disponiveis = ["dicas", "pulos", "eliminar"]
+        ajuda_escolhida = random.choice(ajudas_disponiveis)  # Escolhe uma ajuda aleatória
+        ajudas[ajuda_escolhida] += 1
+        print(f"\nParabéns! Você ganhou uma {ajuda_escolhida.upper()} extra!")
 # Função principal do jogo
 def jogar(perguntas, modo, ajudas):
     random.shuffle(perguntas)  # Mistura a ordem das perguntas
