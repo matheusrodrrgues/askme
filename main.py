@@ -65,38 +65,49 @@ def mostrar_hall(hall):
         print(f"\nModo: {modo}")
         for jogador in jogadores:
             print(f"Nome: {jogador['nome']} - Pontos: {jogador['pontos']}")
-
 # Função para fazer perguntas ao jogador
 def fazer_pergunta(pergunta, ajudas):
     print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")
     print(pergunta['questionText'])
-    
+
     # Mostrar opções de resposta
     opcoes = [pergunta[f"option{i}"] for i in range(1, 6) if f"option{i}" in pergunta]
     for i, opcao in enumerate(opcoes, start=1):
         print(f"{i}. {opcao}")
 
-    # Mostrar opções de ajuda
-    print("\nAjuda disponível:")
-    print(f"1. Usar dica ({ajudas['dicas']} restantes)")
-    print(f"2. Pular questão ({ajudas['pulos']} restantes)")
-    print(f"3. Eliminar opções erradas ({ajudas['eliminar']} restantes)")
-    print("4. Responder")
+    # Controla o uso de ajudas
+    ajuda_usada = {"dicas": False, "pulos": False, "eliminar": False}
 
     while True:
+        # Montar o menu de ajuda dinamicamente
+        print("\nAjuda disponível:")
+        if ajudas['dicas'] > 0 and not ajuda_usada['dicas']:
+            print(f"1. Usar dica ({ajudas['dicas']} restantes)")
+        if ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
+            print(f"2. Pular questão ({ajudas['pulos']} restantes)")
+        if ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
+            print(f"3. Eliminar opções erradas ({ajudas['eliminar']} restantes)")
+        print("4. Responder")
+
         escolha = input("\nEscolha sua ação (1-4): ")
-        if escolha == "1" and ajudas['dicas'] > 0:
+
+        if escolha == "1" and ajudas['dicas'] > 0 and not ajuda_usada['dicas']:
             print("Dica:", pergunta["hint"])
             ajudas['dicas'] -= 1
-        elif escolha == "2" and ajudas['pulos'] > 0:
+            ajuda_usada['dicas'] = True
+
+        elif escolha == "2" and ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
             print("Você pulou a questão!")
             ajudas['pulos'] -= 1
             return None
-        elif escolha == "3" and ajudas['eliminar'] > 0:
+
+        elif escolha == "3" and ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
             erradas = [op for op in opcoes if f"option{opcoes.index(op)+1}" != pergunta["answer"]]
             removidas = random.sample(erradas, len(erradas) - 2)
             print("Opções erradas eliminadas:", ", ".join(removidas))
             ajudas['eliminar'] -= 1
+            ajuda_usada['eliminar'] = True
+
         elif escolha == "4":
             resposta = input("Digite o número da sua resposta: ")
             try:
@@ -115,6 +126,7 @@ def fazer_pergunta(pergunta, ajudas):
                     print("Número fora do intervalo válido!")
             except ValueError:
                 print("Entrada inválida! Digite um número.")
+
         else:
             print("Escolha inválida ou ajuda indisponível.")
 
@@ -157,8 +169,8 @@ def main():
 
     # Configuração inicial das ajudas
     ajudas = {
-        "dicas": 3,
-        "pulos": 2,
+        "dicas": 1,
+        "pulos": 1,
         "eliminar": 1,
         "questoes_fixas": 5,
         "tempo_maximo": 300
