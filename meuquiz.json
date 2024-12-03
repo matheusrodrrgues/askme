@@ -501,7 +501,7 @@
         "option3": "5",
         "option4": "7",
         "option5": "1",
-        "answer": "option1",
+        "answer": "option2",
         "explanation": "João começou com 5 maçãs e deu 2, restando 3.",
         "hint": "Subtraia o número de maçãs dadas do total inicial."
     },
