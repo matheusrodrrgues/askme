@@ -1,11 +1,28 @@
 {
     "fixo": [
         {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
         {"nome": "Ana", "pontos": 40}
+        
     ],
     "tempo": [
-        {"nome": "Carlos", "pontos": 70}
-    ],
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40},
+        {"nome": "Matheus", "pontos": 50},
+        {"nome": "Ana", "pontos": 40}    ],
     "sem_erros": [
         {"nome": "João", "pontos": 100},
         {"nome": "Maria", "pontos": 90}
