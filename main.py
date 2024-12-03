@@ -1,7 +1,7 @@
 # /*****************************************************************************************/
 # Autor: Matheus Silva Rodrigues
 # Componente Curricular: MI Algoritmos
-# Concluido em: 29/10/2024
+# Concluido em: 08/12/2024
 # Declaro que este código foi elaborado por mim de forma individual e não contém nenhum
 # trecho de código de outro colega ou de outro autor, tais como provindos de livros e
 # apostilas, e páginas ou documentos eletrônicos da Internet. Qualquer trecho de código
@@ -11,63 +11,98 @@
 # SO utilizado: Windows 10
 # Bibliotecas utilizadas: JSON, RANDOM e TIME
 # NÃO FUNCIONA EM CAPSLOOK
-# Versão do Python: 3.12.7 em 64-bit
+# Versão do Python: 3.13 em 64-bit
 # ******************************************************************************************/
 
-import json  # Para salvar e carregar dados de arquivos
-import random  # Para embaralhar perguntas
-import time  # Para medir o tempo durante o jogo
+# Código modularizado em funções
 
-# Função para carregar perguntas e o Hall da Fama
-def carregar_dados():
+# Bibliotecas utilizadas:
+# JSON foi para ler os arquivos;
+# time para temporizar o modo 2 do jogo;
+# random foi para randomizar as perguntas de maneira aleatória
+import json, time, random
+
+# Função para carregar arquivo das perguntas e o hall da fama
+# Utilizando tratamento de erros try exception e a biblitoeca json
+def arquivosjs():
     try:
         with open("meuquiz.json", "r", encoding='utf-8') as arquivo:
             perguntas = json.load(arquivo)
+# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado.            
     except FileNotFoundError:
-        print("Arquivo de perguntas não encontrado! Usando lista vazia.")
+        print("Arquivo não encontrado.")
         perguntas = []
-
     try:
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             hall = json.load(arquivo)
+# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado e cria um novo.        
     except FileNotFoundError:
-        print("Arquivo de Hall da Fama não encontrado! Criando um novo.")
+        print("Arquivo não encontrado, criando um novo.")
         hall = {"fixo": [], "tempo": [], "sem_erros": []}
 
     return perguntas, hall
 
-# Função para salvar o Hall da Fama
+# Função desenvolvida para salvar o Hall, caso não consiga ler o arquivo, ele desenvolve um novo na 
+# mesma pasta do arquivo main.py
 def salvar_hall(hall):
     try:
-        # Tentar carregar os dados existentes do hall.json
+# Tentar carregar os dados existentes do hall.json
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-        # Se o arquivo não existir ou estiver corrompido, começar com um novo
+# Se o arquivo não existir ou estiver corrompido, começar com um novo
         dados_existentes = {"fixo": [], "tempo": [], "sem_erros": []}
 
-    # Mesclar os dados existentes com os novos
+# Mesclar os dados existentes com os novos
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
             dados_existentes[modo].extend(jogadores)
-            # Garantir que não ultrapasse os 10 melhores
+# Garantir que não ultrapasse os 10 melhores
             dados_existentes[modo] = sorted(dados_existentes[modo], key=lambda x: x["pontos"], reverse=True)[:10]
 
-    # Salvar o conteúdo atualizado no arquivo
+# Salvar o conteúdo atualizado no arquivo
     with open("hall.json", "w", encoding='utf-8') as arquivo:
         json.dump(dados_existentes, arquivo, indent=4, ensure_ascii=False)
 
-
-# Função para mostrar o Hall da Fama
+# Função desenvolvida para apresentar o Hall da Fama
+# A função pega os dados da função salvar_hall e retorna os 10 melhores jogadores
 def mostrar_hall(hall):
-    print("\n=== Hall da Fama ===")
+    print("\n----------------- HALL DA FAMA -----------------")
     for modo, jogadores in hall.items():
-        print(f"\nModo: {modo}")
+        print(f"\nModo de jogo: {modo}")
         for jogador in jogadores:
-            print(f"Nome: {jogador['nome']} - Pontos: {jogador['pontos']}")
+            print(f"[NOME DO JOGADOR]: {jogador['nome']} - Pontuação: {jogador['pontos']}")
+
+# Função principal do jogo
+def jogar(perguntas, modo, ajudas):
+    random.shuffle(perguntas)
+    pontos = 0
+    inicio = time.time()
+
+    for pergunta in perguntas:
+        if modo == "fixo" and pontos >= ajudas["questoes_fixas"]:
+            break
+        if modo == "tempo" and time.time() - inicio >= ajudas["tempo_maximo"]:
+            print("Tempo esgotado!")
+            break
+        if modo == "sem_erros" and pontos >= len(perguntas):
+            break
+
+        resultado = fazer_pergunta(pergunta, ajudas)
+        if resultado is None:
+            continue
+        elif resultado:
+            pontos += int(pergunta["value"])
+        else:
+            if modo == "sem_erros":
+                print("Você errou! Fim do jogo.")
+                break
+
+    return pontos
+
 # Função para fazer perguntas ao jogador
 def fazer_pergunta(pergunta, ajudas):
-    print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")
+    print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")   
     print(pergunta['questionText'])
 
     # Mostrar opções de resposta
@@ -89,7 +124,7 @@ def fazer_pergunta(pergunta, ajudas):
             print(f"3. Eliminar opções erradas ({ajudas['eliminar']} restantes)")
         print("4. Responder")
 
-        escolha = input("\nEscolha sua ação (1-4): ")
+        escolha = input("\nEscolha sua opção (1-4): ")
 
         if escolha == "1" and ajudas['dicas'] > 0 and not ajuda_usada['dicas']:
             print("Dica:", pergunta["hint"])
@@ -123,46 +158,22 @@ def fazer_pergunta(pergunta, ajudas):
                         print(f"Explicação: {pergunta['explanation']}")
                         return False
                 else:
-                    print("Número fora do intervalo válido!")
+                    print("Opção inválida.")
             except ValueError:
                 print("Entrada inválida! Digite um número.")
 
         else:
             print("Escolha inválida ou ajuda indisponível.")
 
+# Função para recuperar ajuda (meta)
 def recuperar_ajuda(ajudas, respostas_certas):
 
     if respostas_certas > 0 and respostas_certas % 6 == 0:  # Verifica se é múltiplo de 6
         ajudas_disponiveis = ["dicas", "pulos", "eliminar"]
         ajuda_escolhida = random.choice(ajudas_disponiveis)  # Escolhe uma ajuda aleatória
         ajudas[ajuda_escolhida] += 1
-        print(f"\nParabéns! Você ganhou uma {ajuda_escolhida.upper()} extra!")
-# Função principal do jogo
-def jogar(perguntas, modo, ajudas):
-    random.shuffle(perguntas)  # Mistura a ordem das perguntas
-    pontos = 0
-    inicio = time.time()
-
-    for pergunta in perguntas:
-        if modo == "fixo" and pontos >= ajudas["questoes_fixas"]:
-            break
-        if modo == "tempo" and time.time() - inicio >= ajudas["tempo_maximo"]:
-            print("Tempo esgotado!")
-            break
-        if modo == "sem_erros" and pontos >= len(perguntas):
-            break
-
-        resultado = fazer_pergunta(pergunta, ajudas)
-        if resultado is None:
-            continue
-        elif resultado:
-            pontos += int(pergunta["value"])
-        else:
-            if modo == "sem_erros":
-                print("Você errou! Fim do jogo.")
-                break
-
-    return pontos
+        print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
+        
 
 # Função para atualizar o Hall da Fama
 def atualizar_hall(hall, modo, pontos):
@@ -172,29 +183,29 @@ def atualizar_hall(hall, modo, pontos):
 
 # Função principal que controla o menu
 def main():
-    perguntas, hall = carregar_dados()
+    perguntas, hall = arquivosjs()
 
     # Configuração inicial das ajudas
     ajudas = {
         "dicas": 1,
         "pulos": 1,
         "eliminar": 1,
-        "questoes_fixas": 5,
+        "questoes_fixas": 20,
         "tempo_maximo": 300
     }
 
     while True:
-        print("\n=== Quiz AskMe ===")
-        print("1. Jogar")
-        print("2. Ver Hall da Fama")
-        print("3. Sair")
+        print("\n----------------- ASKME - QUIZ GERAL -----------------")
+        print("[1] ESCOLHER MODO DE JOGO")
+        print("[2] HALL DA FAMA")
+        print("[3] SAIR")
         opcao = input("Escolha uma opção: ")
 
         if opcao == "1":
             print("\nEscolha um modo:")
-            print("1. Número fixo de questões")
-            print("2. Tempo limitado")
-            print("3. Não erre nenhuma")
+            print("1. QUESTÕES FIXAS")
+            print("2. TEMPO LIMITADO")
+            print("3. HARDCORE")
             modo = input("Modo escolhido (1-3): ")
 
             if modo == "1":
