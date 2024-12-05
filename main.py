@@ -81,7 +81,7 @@ def jogar(perguntas, modo, ajudas):
     for pergunta in perguntas:
         if modo == "questfixa" and pontos >= ajudas["questoes_fixas"]:
             break
-        if modo == "questemp" and time.time() - inicio >= ajudas["tempo_maximo"]:
+        if modo == "questemp" and time.time() - inicio >= ajudas["tempoesgotado"]:
             print("Tempo esgotado!")
             break
         if modo == "hardcore" and pontos >= len(perguntas):
@@ -108,15 +108,15 @@ def fazer_pergunta(pergunta, ajudas):
     for i, opcao in enumerate(alternativas, start=1):
         print(f"{i}. {opcao}")
 
-    ajuda_usada = {"dicas": False, "pulos": False, "eliminar": False}
+    ajuda_usada = {"dicas": False, "pularquestao": False, "eliminar": False}
 
     while True:
         # Montar o menu de ajuda dinamicamente
         print("\nAjuda disponível:")
         if ajudas['dicas'] > 0 and not ajuda_usada['dicas']:
             print(f"1. Usar dica ({ajudas['dicas']} restantes)")
-        if ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
-            print(f"2. Pular questão ({ajudas['pulos']} restantes)")
+        if ajudas['pularquestao'] > 0 and not ajuda_usada['pularquestao']:
+            print(f"2. Pular questão ({ajudas['pularquestao']} restantes)")
         if ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
             print(f"3. Eliminar opções erradas ({ajudas['eliminar']} restantes)")
         print("4. Responder")
@@ -128,9 +128,9 @@ def fazer_pergunta(pergunta, ajudas):
             ajudas['dicas'] -= 1
             ajuda_usada['dicas'] = True
 
-        elif escolha == "2" and ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
+        elif escolha == "2" and ajudas['pularquestao'] > 0 and not ajuda_usada['pularquestao']:
             print("Você pulou a questão!")
-            ajudas['pulos'] -= 1
+            ajudas['pularquestao'] -= 1
             return None
 
         elif escolha == "3" and ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
@@ -176,7 +176,7 @@ def fazer_pergunta(pergunta, ajudas):
 # Ele recebe mais uma ajuda
 def ajudanova(ajudas, respostas_certas):
     if respostas_certas > 0 and respostas_certas % 6 == 0:  
-        ajudas_disponiveis = ["dicas", "pulos", "eliminar"]
+        ajudas_disponiveis = ["dicas", "pularquestao", "eliminar"]
         ajuda_escolhida = random.choice(ajudas_disponiveis)  
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
@@ -195,10 +195,10 @@ def askme():
     # Configuração inicial das ajudas
     ajudas = {
         "dicas": 1,
-        "pulos": 1,
+        "pularquestao": 1,
         "eliminar": 1,
         "questoes_fixas": 20,
-        "tempo_maximo": 300
+        "tempoesgotado": 300
     }
 
     while True:
