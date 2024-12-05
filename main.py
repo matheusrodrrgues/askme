@@ -27,16 +27,13 @@ import json, time, random
 def arquivosjs():
     try:
         with open("meuquiz.json", "r", encoding='utf-8') as arquivo:
-            perguntas = json.load(arquivo)
-            
-# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado          
+            perguntas = json.load(arquivo)           
     except FileNotFoundError:
         print("Arquivo não encontrado.")
         perguntas = []
     try:
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             hall = json.load(arquivo)
-# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado e cria um novo.        
     except FileNotFoundError:
         print("Arquivo não encontrado, criando um novo.")
         hall = {"fixo": [], "tempo": [], "sem_erros": []}
@@ -45,23 +42,18 @@ def arquivosjs():
 
 # Função desenvolvida para salvar o Hall, caso não consiga ler o arquivo, ele desenvolve um novo na 
 # mesma pasta do arquivo main.py
+# A função mescla dados existentes com novos, ao invés de substituílos;
+# A função garantir que não ultrapasse os 10 melhores
 def salvar_hall(hall):
     try:
-# Tentar carregar os dados existentes do hall.json
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-# Se o arquivo não existir ou estiver corrompido, começar com um novo
         dados_existentes = {"fixo": [], "tempo": [], "sem_erros": []}
-
-# Mesclar os dados existentes com os novos
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
             dados_existentes[modo].extend(jogadores)
-# Garantir que não ultrapasse os 10 melhores
             dados_existentes[modo] = sorted(dados_existentes[modo], key=lambda x: x["pontos"], reverse=True)[:10]
-
-# Salvar o conteúdo atualizado no arquivo
     with open("hall.json", "w", encoding='utf-8') as arquivo:
         json.dump(dados_existentes, arquivo, indent=4, ensure_ascii=False)
 
@@ -167,17 +159,18 @@ def fazer_pergunta(pergunta, ajudas):
             print("Escolha inválida ou ajuda indisponível.")
 
 # Função para recuperar ajuda (meta)
-def recuperar_ajuda(ajudas, respostas_certas):
-
-    if respostas_certas > 0 and respostas_certas % 6 == 0:  # Verifica se é múltiplo de 6
+# A função contabiliza se as respostas certas forem maior que 0 e se forem multiplos de 6 (se ele tiver acertado 6 certas)
+# Ele recebe mais uma ajuda
+def ajudanova(ajudas, respostas_certas):
+    if respostas_certas > 0 and respostas_certas % 6 == 0:  
         ajudas_disponiveis = ["dicas", "pulos", "eliminar"]
-        ajuda_escolhida = random.choice(ajudas_disponiveis)  # Escolhe uma ajuda aleatória
+        ajuda_escolhida = random.choice(ajudas_disponiveis)  
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
 
-
 # Função para atualizar o Hall da Fama
-def atualizar_hall(hall, modo, pontos):
+# Função solicita que o usuário após o finalizar dos modos de jogo, insira os dados
+def hallatt(hall, modo, pontos):
     nome = input("Digite seu nome: ")
     hall[modo].append({"nome": nome, "pontos": pontos})
     hall[modo] = sorted(hall[modo], key=lambda x: x["pontos"], reverse=True)[:10]
@@ -221,10 +214,10 @@ def askme():
 
             pontos = jogar(perguntas, modo, ajudas)
             print(f"Sua pontuação foi: {pontos}")
-            atualizar_hall(hall, modo, pontos)
+            hallatt(hall, modo, pontos)
 
         elif opcao == "2":
-            mostrar_hall(hall)
+            mostrar_hall(hall)      
 
         elif opcao == "3":
             salvar_hall(hall)
