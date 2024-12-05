@@ -98,12 +98,10 @@ def fazer_pergunta(pergunta, ajudas):
     print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")   
     print(pergunta['questionText'])
 
-    # Mostrar opções de resposta
-    opcoes = [pergunta[f"option{i}"] for i in range(1, 6) if f"option{i}" in pergunta]
-    for i, opcao in enumerate(opcoes, start=1):
+    alternativas = [pergunta[f"option{i}"] for i in range(1, 6) if f"option{i}" in pergunta]
+    for i, opcao in enumerate(alternativas, start=1):
         print(f"{i}. {opcao}")
 
-    # Controla o uso de ajudas
     ajuda_usada = {"dicas": False, "pulos": False, "eliminar": False}
 
     while True:
@@ -130,9 +128,18 @@ def fazer_pergunta(pergunta, ajudas):
             return None
 
         elif escolha == "3" and ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
-            erradas = [op for op in opcoes if f"option{opcoes.index(op)+1}" != pergunta["answer"]]
+            numeros = [str(i) for i in range(1, len(alternativas) + 1)]
+            alternativas_numeros = {numeros[i]: op for i, op in enumerate(alternativas)}
+
+            erradas = [
+                numero for numero, texto in alternativas_numeros.items()
+                if f"option{numero}" != pergunta["answer"]]
+
             removidas = random.sample(erradas, len(erradas) - 2)
-            print("Opções erradas eliminadas:", ", ".join(removidas))
+            eliminadas_formatadas = [f"[{numero}] {alternativas_numeros[numero]}" for numero in removidas]
+
+            print("Opções erradas eliminadas:", ", ".join(eliminadas_formatadas))
+
             ajudas['eliminar'] -= 1
             ajuda_usada['eliminar'] = True
 
@@ -140,7 +147,7 @@ def fazer_pergunta(pergunta, ajudas):
             resposta = input("Digite o número da sua resposta: ")
             try:
                 resposta_int = int(resposta)
-                if resposta_int in range(1, len(opcoes) + 1):
+                if resposta_int in range(1, len(alternativas) + 1):
                     if f"option{resposta_int}" == pergunta["answer"]:
                         print("Resposta correta!")
                         print()
