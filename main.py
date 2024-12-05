@@ -36,7 +36,10 @@ def arquivosjs():
             hall = json.load(arquivo)
     except FileNotFoundError:
         print("Arquivo não encontrado, criando um novo.")
-        hall = {"fixo": [], "tempo": [], "sem_erros": []}
+        hall = {"questfixa": [],
+                 "questemp": [],
+                 "hardcore": []
+                 }
 
     return perguntas, hall
 
@@ -49,7 +52,10 @@ def salvar_hall(hall):
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-        dados_existentes = {"fixo": [], "tempo": [], "sem_erros": []}
+        dados_existentes = {"questfixa": [], 
+                            "questemp": [], 
+                            "hardcore": []
+                            }
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
             dados_existentes[modo].extend(jogadores)
@@ -73,12 +79,12 @@ def jogar(perguntas, modo, ajudas):
     inicio = time.time()
 
     for pergunta in perguntas:
-        if modo == "fixo" and pontos >= ajudas["questoes_fixas"]:
+        if modo == "questfixa" and pontos >= ajudas["questoes_fixas"]:
             break
-        if modo == "tempo" and time.time() - inicio >= ajudas["tempo_maximo"]:
+        if modo == "questemp" and time.time() - inicio >= ajudas["tempo_maximo"]:
             print("Tempo esgotado!")
             break
-        if modo == "sem_erros" and pontos >= len(perguntas):
+        if modo == "hardcore" and pontos >= len(perguntas):
             break
 
         resultado = fazer_pergunta(pergunta, ajudas)
@@ -87,7 +93,7 @@ def jogar(perguntas, modo, ajudas):
         elif resultado:
             pontos += int(pergunta["value"])
         else:
-            if modo == "sem_erros":
+            if modo == "hardcore":
                 print("Você errou! Fim do jogo.")
                 break
 
@@ -210,25 +216,26 @@ def askme():
             modo = input("Modo escolhido (1-3): ")
 
             if modo == "1":
-                modo = "fixo"
+                modo = "questfixa"
             elif modo == "2":
-                modo = "tempo"
+                modo = "questemp"
             elif modo == "3":
-                modo = "sem_erros"
+                modo = "hardcore"
             else:
                 print("Modo inválido!")
                 continue
 
             pontos = jogar(perguntas, modo, ajudas)
-            print(f"Sua pontuação foi: {pontos}")
+            print(f"Sua pontuação foi de: {pontos}")
             hallatt(hall, modo, pontos)
-
+            salvar_hall(hall)
+            
         elif opcao == "2":
             mostrar_hall(hall)      
 
         elif opcao == "3":
             salvar_hall(hall)
-            print("Até a próxima!")
+            print("Obrigado por jogar conosco. Até breve.")
             break
 
         else:
