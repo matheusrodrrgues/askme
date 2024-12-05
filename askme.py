@@ -36,7 +36,10 @@ def arquivosjs():
             hall = json.load(arquivo)
     except FileNotFoundError:
         print("Arquivo não encontrado, criando um novo.")
-        hall = {"fixo": [], "tempo": [], "sem_erros": []}
+        hall = {"questfixa": [],
+                 "questemp": [],
+                 "hardcore": []
+                 }
 
     return perguntas, hall
 
@@ -49,7 +52,10 @@ def salvar_hall(hall):
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-        dados_existentes = {"fixo": [], "tempo": [], "sem_erros": []}
+        dados_existentes = {"questfixa": [], 
+                            "questemp": [], 
+                            "hardcore": []
+                            }
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
             dados_existentes[modo].extend(jogadores)
@@ -67,18 +73,18 @@ def mostrar_hall(hall):
             print(f"[NOME DO JOGADOR]: {jogador['nome']} - Pontuação: {jogador['pontos']}")
 
 # Função principal do jogo
-def jogar(perguntas, modo, ajudas):
-    random.shuffle(perguntas)
+def quiz(perguntas, modo, ajudas):
     pontos = 0
     inicio = time.time()
+    random.shuffle(perguntas)
 
     for pergunta in perguntas:
-        if modo == "fixo" and pontos >= ajudas["questoes_fixas"]:
+        if modo == "questfixa" and pontos >= ajudas["questoes_fixas"]:
             break
-        if modo == "tempo" and time.time() - inicio >= ajudas["tempo_maximo"]:
+        if modo == "questemp" and time.time() - inicio >= ajudas["tempoesgotado"]:
             print("Tempo esgotado!")
             break
-        if modo == "sem_erros" and pontos >= len(perguntas):
+        if modo == "hardcore" and pontos >= len(perguntas):
             break
 
         resultado = fazer_pergunta(pergunta, ajudas)
@@ -87,7 +93,7 @@ def jogar(perguntas, modo, ajudas):
         elif resultado:
             pontos += int(pergunta["value"])
         else:
-            if modo == "sem_erros":
+            if modo == "hardcore":
                 print("Você errou! Fim do jogo.")
                 break
 
@@ -98,21 +104,19 @@ def fazer_pergunta(pergunta, ajudas):
     print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")   
     print(pergunta['questionText'])
 
-    # Mostrar opções de resposta
-    opcoes = [pergunta[f"option{i}"] for i in range(1, 6) if f"option{i}" in pergunta]
-    for i, opcao in enumerate(opcoes, start=1):
+    alternativas = [pergunta[f"option{i}"] for i in range(1, 6) if f"option{i}" in pergunta]
+    for i, opcao in enumerate(alternativas, start=1):
         print(f"{i}. {opcao}")
 
-    # Controla o uso de ajudas
-    ajuda_usada = {"dicas": False, "pulos": False, "eliminar": False}
+    ajuda_usada = {"dicas": False, "pularquestao": False, "eliminar": False}
 
     while True:
         # Montar o menu de ajuda dinamicamente
         print("\nAjuda disponível:")
         if ajudas['dicas'] > 0 and not ajuda_usada['dicas']:
             print(f"1. Usar dica ({ajudas['dicas']} restantes)")
-        if ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
-            print(f"2. Pular questão ({ajudas['pulos']} restantes)")
+        if ajudas['pularquestao'] > 0 and not ajuda_usada['pularquestao']:
+            print(f"2. Pular questão ({ajudas['pularquestao']} restantes)")
         if ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
             print(f"3. Eliminar opções erradas ({ajudas['eliminar']} restantes)")
         print("4. Responder")
@@ -124,15 +128,24 @@ def fazer_pergunta(pergunta, ajudas):
             ajudas['dicas'] -= 1
             ajuda_usada['dicas'] = True
 
-        elif escolha == "2" and ajudas['pulos'] > 0 and not ajuda_usada['pulos']:
+        elif escolha == "2" and ajudas['pularquestao'] > 0 and not ajuda_usada['pularquestao']:
             print("Você pulou a questão!")
-            ajudas['pulos'] -= 1
+            ajudas['pularquestao'] -= 1
             return None
 
         elif escolha == "3" and ajudas['eliminar'] > 0 and not ajuda_usada['eliminar']:
-            erradas = [op for op in opcoes if f"option{opcoes.index(op)+1}" != pergunta["answer"]]
+            numeros = [str(i) for i in range(1, len(alternativas) + 1)]
+            alternativas_numeros = {numeros[i]: op for i, op in enumerate(alternativas)}
+
+            erradas = [
+                numero for numero, texto in alternativas_numeros.items()
+                if f"option{numero}" != pergunta["answer"]]
+
             removidas = random.sample(erradas, len(erradas) - 2)
-            print("Opções erradas eliminadas:", ", ".join(removidas))
+            eliminadas_formatadas = [f"[{numero}] {alternativas_numeros[numero]}" for numero in removidas]
+
+            print("Opções erradas eliminadas:", ", ".join(eliminadas_formatadas))
+
             ajudas['eliminar'] -= 1
             ajuda_usada['eliminar'] = True
 
@@ -140,7 +153,7 @@ def fazer_pergunta(pergunta, ajudas):
             resposta = input("Digite o número da sua resposta: ")
             try:
                 resposta_int = int(resposta)
-                if resposta_int in range(1, len(opcoes) + 1):
+                if resposta_int in range(1, len(alternativas) + 1):
                     if f"option{resposta_int}" == pergunta["answer"]:
                         print("Resposta correta!")
                         print()
@@ -163,7 +176,7 @@ def fazer_pergunta(pergunta, ajudas):
 # Ele recebe mais uma ajuda
 def ajudanova(ajudas, respostas_certas):
     if respostas_certas > 0 and respostas_certas % 6 == 0:  
-        ajudas_disponiveis = ["dicas", "pulos", "eliminar"]
+        ajudas_disponiveis = ["dicas", "pularquestao", "eliminar"]
         ajuda_escolhida = random.choice(ajudas_disponiveis)  
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
@@ -182,10 +195,10 @@ def askme():
     # Configuração inicial das ajudas
     ajudas = {
         "dicas": 1,
-        "pulos": 1,
+        "pularquestao": 1,
         "eliminar": 1,
         "questoes_fixas": 20,
-        "tempo_maximo": 300
+        "tempoesgotado": 300
     }
 
     while True:
@@ -203,25 +216,26 @@ def askme():
             modo = input("Modo escolhido (1-3): ")
 
             if modo == "1":
-                modo = "fixo"
+                modo = "questfixa"
             elif modo == "2":
-                modo = "tempo"
+                modo = "questemp"
             elif modo == "3":
-                modo = "sem_erros"
+                modo = "hardcore"
             else:
                 print("Modo inválido!")
                 continue
 
-            pontos = jogar(perguntas, modo, ajudas)
-            print(f"Sua pontuação foi: {pontos}")
+            pontos = quiz(perguntas, modo, ajudas)
+            print(f"Sua pontuação foi de: {pontos}")
             hallatt(hall, modo, pontos)
-
+            salvar_hall(hall)
+            
         elif opcao == "2":
             mostrar_hall(hall)      
 
         elif opcao == "3":
             salvar_hall(hall)
-            print("Até a próxima!")
+            print("Obrigado por jogar o quiz conosco. Até breve.")
             break
 
         else:
