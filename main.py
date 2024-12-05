@@ -73,10 +73,10 @@ def mostrar_hall(hall):
             print(f"[NOME DO JOGADOR]: {jogador['nome']} - Pontuação: {jogador['pontos']}")
 
 # Função principal do jogo
-def jogar(perguntas, modo, ajudas):
-    random.shuffle(perguntas)
+def quiz(perguntas, modo, ajudas):
     pontos = 0
     inicio = time.time()
+    random.shuffle(perguntas)
 
     for pergunta in perguntas:
         if modo == "questfixa" and pontos >= ajudas["questoes_fixas"]:
@@ -225,7 +225,7 @@ def askme():
                 print("Modo inválido!")
                 continue
 
-            pontos = jogar(perguntas, modo, ajudas)
+            pontos = quiz(perguntas, modo, ajudas)
             print(f"Sua pontuação foi de: {pontos}")
             hallatt(hall, modo, pontos)
             salvar_hall(hall)
@@ -235,7 +235,7 @@ def askme():
 
         elif opcao == "3":
             salvar_hall(hall)
-            print("Obrigado por jogar conosco. Até breve.")
+            print("Obrigado por jogar o quiz conosco. Até breve.")
             break
 
         else:
