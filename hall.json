@@ -1,30 +1,42 @@
 {
-    "fixo": [
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40}
-        
-    ],
-    "tempo": [
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40},
-        {"nome": "Matheus", "pontos": 50},
-        {"nome": "Ana", "pontos": 40}    ],
-    "sem_erros": [
-        {"nome": "João", "pontos": 100},
-        {"nome": "Maria", "pontos": 90}
+    "questfixa": [],
+    "questemp": [],
+    "hardcore": [
+        {
+            "nome": "cu",
+            "pontos": 124
+        },
+        {
+            "nome": "cu",
+            "pontos": 124
+        },
+        {
+            "nome": "Paulo",
+            "pontos": 18
+        },
+        {
+            "nome": "Paulo",
+            "pontos": 18
+        },
+        {
+            "nome": "pedro",
+            "pontos": 14
+        },
+        {
+            "nome": "pedro",
+            "pontos": 14
+        },
+        {
+            "nome": "pedro",
+            "pontos": 14
+        },
+        {
+            "nome": "pedro",
+            "pontos": 14
+        },
+        {
+            "nome": "ois",
+            "pontos": 2
+        }
     ]
 }
