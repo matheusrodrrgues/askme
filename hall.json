@@ -1,42 +1,19 @@
 {
-    "questfixa": [],
+    "questfixa": [
+        {
+            "nome": "Yasmin",
+            "pontos": 22
+        }
+    ],
     "questemp": [],
     "hardcore": [
         {
-            "nome": "cu",
-            "pontos": 124
+            "nome": "Brasil",
+            "pontos": 15
         },
         {
-            "nome": "cu",
-            "pontos": 124
-        },
-        {
-            "nome": "Paulo",
-            "pontos": 18
-        },
-        {
-            "nome": "Paulo",
-            "pontos": 18
-        },
-        {
-            "nome": "pedro",
-            "pontos": 14
-        },
-        {
-            "nome": "pedro",
-            "pontos": 14
-        },
-        {
-            "nome": "pedro",
-            "pontos": 14
-        },
-        {
-            "nome": "pedro",
-            "pontos": 14
-        },
-        {
-            "nome": "ois",
-            "pontos": 2
+            "nome": "Matheus",
+            "pontos": 8
         }
     ]
 }
