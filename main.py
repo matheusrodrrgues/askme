@@ -28,7 +28,8 @@ def arquivosjs():
     try:
         with open("meuquiz.json", "r", encoding='utf-8') as arquivo:
             perguntas = json.load(arquivo)
-# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado.            
+            
+# Caso não tenha o arquivo, o sistema retorna o print com o valor Não encontrado          
     except FileNotFoundError:
         print("Arquivo não encontrado.")
         perguntas = []
@@ -173,7 +174,7 @@ def recuperar_ajuda(ajudas, respostas_certas):
         ajuda_escolhida = random.choice(ajudas_disponiveis)  # Escolhe uma ajuda aleatória
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
-        
+
 
 # Função para atualizar o Hall da Fama
 def atualizar_hall(hall, modo, pontos):
@@ -182,7 +183,7 @@ def atualizar_hall(hall, modo, pontos):
     hall[modo] = sorted(hall[modo], key=lambda x: x["pontos"], reverse=True)[:10]
 
 # Função principal que controla o menu
-def main():
+def askme():
     perguntas, hall = arquivosjs()
 
     # Configuração inicial das ajudas
@@ -231,7 +232,8 @@ def main():
             break
 
         else:
-            print("Opção inválida! Tente novamente.")
+            print("Tente outra vez.")
+
 
 if __name__ == "__main__":
-    main()
+    askme()
