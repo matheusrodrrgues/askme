@@ -58,7 +58,7 @@ def salvar_hall(hall):
                             }
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
-            dados_existentes[modo].extend(jogadores)
+            dados_existentes[modo] = jogadores
             dados_existentes[modo] = sorted(dados_existentes[modo], key=lambda x: x["pontos"], reverse=True)[:10]
     with open("hall.json", "w", encoding='utf-8') as arquivo:
         json.dump(dados_existentes, arquivo, indent=4, ensure_ascii=False)
@@ -74,6 +74,7 @@ def mostrar_hall(hall):
 
 # Função principal do jogo
 def quiz(perguntas, modo, ajudas):
+    respostas_certas = 0 
     pontos = 0
     inicio = time.time()
     random.shuffle(perguntas)
@@ -92,6 +93,9 @@ def quiz(perguntas, modo, ajudas):
             continue
         elif resultado:
             pontos += int(pergunta["value"])
+            respostas_certas += 1 
+
+            ajudanova(ajudas, respostas_certas)
         else:
             if modo == "hardcore":
                 print("Você errou! Fim do jogo.")
@@ -184,7 +188,7 @@ def ajudanova(ajudas, respostas_certas):
 # Função principal que controla o menu
 def askme():
     perguntas, hall = arquivosjs()
-
+    print("Olá, bem vindo ao AskMe Game!")
     nome = input("Digite seu nome: ").strip()
     print(f"Bem-vindo(a), {nome}!")
 
