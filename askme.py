@@ -47,19 +47,28 @@ def arquivosjs():
 # mesma pasta do arquivo main.py
 # A função mescla dados existentes com novos, ao invés de substituílos;
 # A função garantir que não ultrapasse os 10 melhores
+
 def salvar_hall(hall):
     try:
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-        dados_existentes = {"questfixa": [], 
-                            "questemp": [], 
-                            "hardcore": []
-                            }
+        dados_existentes = {"questfixa": [], "questemp": [], "hardcore": []}
+
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
             dados_existentes[modo] = jogadores
-            dados_existentes[modo] = sorted(dados_existentes[modo], key=lambda x: x["pontos"], reverse=True)[:10]
+            jogadores_unicos = {jogador['nome']: jogador for jogador in dados_existentes[modo]}
+            dados_existentes[modo] = list(jogadores_unicos.values())
+            if modo == "questemp":
+                dados_existentes[modo] = sorted(
+                    dados_existentes[modo], key=lambda x: x["tempo"])[:10]
+            else:
+                dados_existentes[modo] = sorted(
+                    dados_existentes[modo], key=lambda x: x["pontos"], reverse=True)[:10]
+        else:
+            dados_existentes[modo] = jogadores
+
     with open("hall.json", "w", encoding='utf-8') as arquivo:
         json.dump(dados_existentes, arquivo, indent=4, ensure_ascii=False)
 
@@ -69,8 +78,12 @@ def mostrar_hall(hall):
     print("\n----------------- HALL DA FAMA -----------------")
     for modo, jogadores in hall.items():
         print(f"\nModo de jogo: {modo}")
-        for jogador in jogadores:
-            print(f"[{jogador['nome']}]: Pontuação: {jogador['pontos']}")
+        if modo == "questemp":
+            for jogador in jogadores:
+                print(f"[{jogador['nome']}]: Tempo: {jogador['tempo']} segundos")
+        else:
+            for jogador in jogadores:
+                print(f"[{jogador['nome']}]: Pontuação: {jogador['pontos']}")
 
 # Função principal do jogo
 def quiz(perguntas, modo, ajudas):
@@ -100,7 +113,8 @@ def quiz(perguntas, modo, ajudas):
             if modo == "hardcore":
                 print("Você errou! Fim do jogo.")
                 break
-
+    if modo == "questemp":
+        return round(time.time() - inicio, 2)
     return pontos
 
 # Função para fazer perguntas ao jogador
@@ -224,10 +238,15 @@ def askme():
             else:
                 print("Modo inválido!")
                 continue
+            # Chamar a função quiz e processar o resultado
+            valor = quiz(perguntas, modo, ajudas)
 
-            pontos = quiz(perguntas, modo, ajudas)
-            print(f"Sua pontuação foi de: {pontos}")
-            hallatt(hall, modo, pontos, nome)
+            if modo == "questemp":
+                print(f"Você jogou por {valor} segundos.")
+            else:
+                print(f"Sua pontuação foi de: {valor}")
+
+            hallatt(hall, modo, valor, nome)
             salvar_hall(hall)
             
         elif opcao == "2":
@@ -243,9 +262,13 @@ def askme():
 
 # Função para atualizar o Hall da Fama
 # Função solicita que o usuário após o finalizar dos modos de jogo, insira os dados
-def hallatt(hall, modo, pontos, nome):
-    hall[modo].append({"nome": nome, "pontos": pontos})
-    hall[modo] = sorted(hall[modo], key=lambda x: x["pontos"], reverse=True)[:10]
+def hallatt(hall, modo, valor, nome):
+    novo_registro = {"nome": nome}
+    if modo == "questemp":
+        novo_registro["tempo"] = valor
+    else:
+        novo_registro["pontos"] = valor
+    hall[modo].append(novo_registro)
 
 if __name__ == "__main__":
     askme()
