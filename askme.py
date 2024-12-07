@@ -85,7 +85,8 @@ def mostrar_hall(hall):
             for jogador in jogadores:
                 print(f"[{jogador['nome']}]: Pontuação: {jogador['pontos']}")
 
-# Função principal do jogo
+# Função principal do jogo, nela é coordenado todas as diretrizes principais, como os modos de jogos, as respostas,
+# os resultados e a pré definição entre os pontos e as respostas certas, para definir o ranking e as ajudas surpresas.
 def quiz(perguntas, modo, ajudas):
     respostas_certas = 0 
     pontos = 0
@@ -117,7 +118,7 @@ def quiz(perguntas, modo, ajudas):
         return round(time.time() - inicio, 2)
     return pontos
 
-# Função para fazer perguntas ao jogador
+# Função para realizar as perguntas ao jogador, e administrar o menú e as opções de jogo.
 def fazer_pergunta(pergunta, ajudas):
     print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")   
     print(pergunta['questionText'])
@@ -199,7 +200,7 @@ def ajudanova(ajudas, respostas_certas):
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
 
-# Função principal que controla o menu
+# Função principal do jogo, que controla menú e adjacentes.
 def askme():
     perguntas, hall = arquivosjs()
     print("Olá, bem vindo ao AskMe Game!")
@@ -212,7 +213,7 @@ def askme():
         "pularquestao": 1,
         "eliminar": 1,
         "questoes_fixas": 20,
-        "tempoesgotado": 300
+        "tempoesgotado": 30
     }
 
     while True:
@@ -270,5 +271,6 @@ def hallatt(hall, modo, valor, nome):
         novo_registro["pontos"] = valor
     hall[modo].append(novo_registro)
 
+# inicializa o game
 if __name__ == "__main__":
     askme()
