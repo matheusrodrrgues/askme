@@ -25,6 +25,9 @@ import json, time, random
 # Função para carregar arquivo das perguntas e o hall da fama
 # Utilizando tratamento de erros try exception e a biblitoeca json
 def arquivosjs():
+    
+# hall.json lê o hall
+# meuquiz.json lê as perguntas
     try:
         with open("meuquiz.json", "r", encoding='utf-8') as arquivo:
             perguntas = json.load(arquivo)           
@@ -40,20 +43,20 @@ def arquivosjs():
                  "questemp": [],
                  "hardcore": []
                  }
-
     return perguntas, hall
 
 # Função desenvolvida para salvar o Hall, caso não consiga ler o arquivo, ele desenvolve um novo na 
 # mesma pasta do arquivo main.py
 # A função mescla dados existentes com novos, ao invés de substituílos;
 # A função garantir que não ultrapasse os 10 melhores
-
 def salvar_hall(hall):
     try:
         with open("hall.json", "r", encoding='utf-8') as arquivo:
             dados_existentes = json.load(arquivo)
     except (FileNotFoundError, json.JSONDecodeError):
-        dados_existentes = {"questfixa": [], "questemp": [], "hardcore": []}
+        dados_existentes = {"questfixa": [],
+         "questemp": [],
+          "hardcore": []}
 
     for modo, jogadores in hall.items():
         if modo in dados_existentes:
@@ -83,9 +86,10 @@ def mostrar_hall(hall):
                 print(f"[{jogador['nome']}]: Tempo: {jogador['tempo']} segundos")
         else:
             for jogador in jogadores:
-                print(f"[{jogador['nome']}]: Pontuação: {jogador['pontos']}")
+                print(f"[{jogador['nome']}]: Score: {jogador['pontos']}")
 
-# Função principal do jogo
+# Função principal do jogo, nela é coordenado todas as diretrizes principais, como os modos de jogos, as respostas,
+# os resultados e a pré definição entre os pontos e as respostas certas, para definir o ranking e as ajudas surpresas.
 def quiz(perguntas, modo, ajudas):
     respostas_certas = 0 
     pontos = 0
@@ -111,13 +115,13 @@ def quiz(perguntas, modo, ajudas):
             ajudanova(ajudas, respostas_certas)
         else:
             if modo == "hardcore":
-                print("Você errou! Fim do jogo.")
+                print("Você é perdeu! Fim do jogo.")
                 break
     if modo == "questemp":
         return round(time.time() - inicio, 2)
     return pontos
 
-# Função para fazer perguntas ao jogador
+# Função para realizar as perguntas ao jogador, e administrar o menú e as opções de jogo.
 def fazer_pergunta(pergunta, ajudas):
     print(f"\nCategoria: {pergunta['category']} (Valor: {pergunta['value']})")   
     print(pergunta['questionText'])
@@ -158,7 +162,6 @@ def fazer_pergunta(pergunta, ajudas):
             erradas = [
                 numero for numero, texto in alternativas_numeros.items()
                 if f"option{numero}" != pergunta["answer"]]
-
             removidas = random.sample(erradas, len(erradas) - 2)
             eliminadas_formatadas = [f"[{numero}] {alternativas_numeros[numero]}" for numero in removidas]
 
@@ -199,7 +202,7 @@ def ajudanova(ajudas, respostas_certas):
         ajudas[ajuda_escolhida] += 1
         print(f"\nSortudo! Você ganhou uma {ajuda_escolhida.upper()} extra!")
 
-# Função principal que controla o menu
+# Função principal do jogo, que controla menú e adjacentes.
 def askme():
     perguntas, hall = arquivosjs()
     print("Olá, bem vindo ao AskMe Game!")
@@ -270,5 +273,6 @@ def hallatt(hall, modo, valor, nome):
         novo_registro["pontos"] = valor
     hall[modo].append(novo_registro)
 
+# inicializa o game
 if __name__ == "__main__":
     askme()
